@@ -1,7 +1,7 @@
 # 进行数据预处理
-import warnings
-import numpy as np
 import csv
+import warnings
+
 from efficient_apriori import apriori
 
 warnings.filterwarnings('ignore')
@@ -15,7 +15,6 @@ for goods in lists:
     for good in goods:
         if len(good):
             good_new.append(good.strip())
-    # print(good_new)
     data.append(good_new)
 
 # 调库挖掘频繁项集和关联规则
