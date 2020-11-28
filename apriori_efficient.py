@@ -18,8 +18,8 @@ for goods in lists:
     # print(good_new)
     data.append(good_new)
 
-# 挖掘频繁项集和关联规则
-itemsets, rules = apriori(data, min_support=0.01, min_confidence=0.5)
+# 调库挖掘频繁项集和关联规则
+item_sets, rules = apriori(data, min_support=0.01, min_confidence=0.5)
 print('一共有 %d 条数据' % len(data))
-print('频繁项集：', itemsets)
+print('频繁项集：', item_sets)
 print('关联规则：', rules)
