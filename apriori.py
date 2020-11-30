@@ -18,8 +18,28 @@ def apriori(data, min_support, min_confidence):
         if c_1[i] < min_support:
             c_1.pop(i)
     l_1 = c_1
+    print(l_1)
+    c_2 = apriori_gen(l_1)
+    print(c_2)
 
 
+# 连接步
+def apriori_gen(l_k):
+    c_k_next = []
+    for item1 in l_k:
+        for item2 in l_k:
+            temp = []
+            if item1 != item2:
+                temp.append(item1)
+                temp.append(item2)
+                temp.sort()
+                if temp not in c_k_next:
+                    c_k_next.append(temp)
+    return c_k_next
+
+# 将预备集转为字典 并计数
+def c_count(l, data):
+    c = {}
 
 lists = csv.reader(open('./groceries/groceries.csv', 'r', encoding='utf-8-sig'))
 # print(lists)
@@ -42,3 +62,5 @@ data_test = [
     [1, 2, 3]
 ]
 apriori(data_test, 2, 1)
+
+
