@@ -1,5 +1,7 @@
 # encoding:utf-8
 # tqdm是进度条包
+import os
+
 from tqdm import tqdm
 
 
@@ -11,6 +13,19 @@ def create_c1(dataset):
             item = frozenset([j])
             c1.add(item)
     return c1
+
+
+# 保存结果到txt文件
+def save_rule(rule, save_path):
+    with open(save_path, "w") as f:
+        f.write("index  confidence" + "   rules\n")
+        index = 1
+        for item in rule:
+            s = " {:<4d}  {:.3f}        {}=>{}\n".format(index, item[2], str(list(item[0])), str(list(item[1])))
+            index += 1
+            f.write(s)
+        f.close()
+    print("result saved,path is:{}".format(save_path))
 
 
 # 剪枝步
@@ -81,9 +96,30 @@ def generate_L(dataset, min_support):
     return L, support_data
 
 
+# 根据频繁项集生成关联规则
+def generate_R(dataset, min_support, min_confidence):
+    L, support_data = generate_L(dataset, min_support)
+    rule_list = []  # 保存满足置信度的规则
+    sub_set_list = []  # 该数组保存检查过的频繁项
+    for k in range(len(L)):
+        for freq_set in L[k]:  # 遍历Lk
+            for sub_set in sub_set_list:  # sub_set_list中保存的是L1到Lk-1
+                if sub_set.issubset(freq_set):  # 检查sub_set是否是freq_set的子集
+                    # 检查置信度是否满足要求，是则添加到规则
+                    conf = support_data[freq_set] / support_data[freq_set - sub_set]
+                    big_rule = (freq_set - sub_set, sub_set, conf)
+                    if conf >= min_confidence and big_rule not in rule_list:
+                        rule_list.append(big_rule)
+            sub_set_list.append(freq_set)
+    rule_list = sorted(rule_list, key=lambda x: x[2], reverse=True)
+    return rule_list
+
+
 if __name__ == '__main__':
     support_data = {}
+    filename = 'apriori_plus'
     min_support = 2
+    min_confidence = 0.5
     data_test = [
         [1, 2, 5],
         [2, 4],
@@ -95,5 +131,13 @@ if __name__ == '__main__':
         [1, 2, 3, 5],
         [1, 2, 3]
     ]
-    L, support_data = generate_L(data_test, min_support)
-    print('支持度字典：', support_data)
+    current_path = os.getcwd()
+    if not os.path.exists(current_path + "/output"):
+        os.mkdir("output")
+    save_path = current_path + "/output/" + filename + ".txt"
+    # L, support_data = generate_L(data_test, min_support)
+    rule = generate_R(data_test, min_support, min_confidence)
+    # print('L: ', L)
+    # print('支持度字典：', support_data)
+    print('rule: ', rule)
+    save_rule(rule, save_path)
